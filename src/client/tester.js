@@ -19,7 +19,6 @@ export default class Tester extends Component {
         let changed = tests.slice(0)
         changed.splice(i, 1)
         this.props.setTests(changed)
-        console.log(shouldFocus)
         if(shouldFocus === true) setImmediate(e => {
             this.refs['test'+Math.min(i,changed.length - 1)].focus()
         })
@@ -33,6 +32,11 @@ export default class Tester extends Component {
     }
     genTest(){
         let grammar = get_exports(this.props.grammar)
+
+        if (grammar.Lexer && grammar.Lexer.re) {
+          grammar.ParserStart = grammar.Lexer.re;
+        }
+
         let example = gen(grammar, grammar.ParserStart);
         let {tests} = this.props
         this.props.setTests([...tests, example])
@@ -48,8 +52,8 @@ export default class Tester extends Component {
             }
         }}>
             <div className='tests'>
-                {this.props.tests.map((t, i) => 
-                    <Test grammar={this.props.grammar} 
+                {this.props.tests.map((t, i) =>
+                    <Test grammar={this.props.grammar}
                         setErrors={this.props.setErrors}
                         key={i}
                         ref={'test'+i}
@@ -103,7 +107,7 @@ class Test extends Component {
                 rej('Possible infinite loop detected! Check your grammar for infinite recursion.')
             }, 5000)
         })
-        .then(outputs => this.setState({outputs}))
+        .then(outputs => this.setState({outputs: outputs.slice(0, 100)}))
         .catch(e => {
             console.warn(e)
             this.props.setErrors(e)
@@ -135,14 +139,14 @@ class Test extends Component {
             <div className='test-x' onClick={this.props.deleteTest}>
                 <div>{'\u00d7'}</div>
             </div>
-            <textarea 
+            <textarea
                 ref='input'
                 placeholder="Type a test..."
                 onChange={e => this.setTest(e.target.value)}
                 value={this.props.test}
                 onKeyDown={this.keyDown.bind(this)}
                 />
-            {outputs.map((output, i) => 
+            {outputs.map((output, i) =>
                 <div className='output' key={i}>
                     <Inspector data={output}/>
                 </div>)}
