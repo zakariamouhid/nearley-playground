@@ -102,7 +102,7 @@ class Test extends Component {
                 rej('Possible infinite loop detected! Check your grammar for infinite recursion.')
             }, 5000)
         })
-        .then(outputs => this.setState({outputs}))
+        .then(outputs => this.setState({outputs: outputs.slice(0, 100)}))
         .catch(e => {
             console.warn(e)
             this.props.setErrors(e)
